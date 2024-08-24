@@ -1,11 +1,68 @@
+import java.util.Arrays; 
+import java.util.Random;
+public class SortingAnalaysis {
 
+    public static void main(String[] args) {
+        int[] sizes = {1000, 5000, 100000}; // Array sizes to test 
+        for (int size : sizes) {
+            System.out.println("Array Size: " + size);
 
-class BubbleSort {
+            int[] array = generateRandomArray(size);
 
-    public long sort(int[] array) {
-        long startTime = System.currentTimeMillis();
-        for (int i = 0; i < array.length - 1; i++) {
-            for (int j = 0; j < array.length - i - 1; j++) {
+            // Measure time for Bubble Sort 
+            int[] bubbleSortArray = Arrays.copyOf(array, array.length);
+            long startTime = System.nanoTime();
+            bubbleSort(bubbleSortArray);
+            long endTime = System.nanoTime();
+            System.out.println("Bubble Sort: " + (endTime - startTime) / 1e6 + " ms");
+
+            // Measure time for Selection Sort 
+            int[] selectionSortArray = Arrays.copyOf(array, array.length);
+            startTime = System.nanoTime();
+            selectionSort(selectionSortArray);
+            endTime = System.nanoTime();
+            System.out.println("Selection Sort: " + (endTime - startTime) / 1e6 + " ms");
+
+            // Measure time for Insertion Sort 
+            int[] insertionSortArray = Arrays.copyOf(array, array.length);
+            startTime = System.nanoTime();
+            insertionSort(insertionSortArray);
+            endTime = System.nanoTime();
+            System.out.println("Insertion Sort: " + (endTime - startTime) / 1e6 + " ms");
+
+            // Measure time for Merge Sort 
+            int[] mergeSortArray = Arrays.copyOf(array, array.length);
+            startTime = System.nanoTime();
+            mergeSort(mergeSortArray);
+            endTime = System.nanoTime();
+            System.out.println("Merge Sort: " + (endTime - startTime) / 1e6 + " ms");
+
+            // Measure time for Quick Sort 
+            int[] quickSortArray = Arrays.copyOf(array, array.length);
+            startTime = System.nanoTime();
+            quickSort(quickSortArray, 0, quickSortArray.length - 1);
+            endTime = System.nanoTime();
+            System.out.println("Quick Sort: " + (endTime - startTime) / 1e6 + " ms");
+
+            System.out.println();
+        }
+    }
+
+    // Generates an array of random integers 
+    public static int[] generateRandomArray(int size) {
+        Random rand = new Random();
+        int[] array = new int[size];
+        for (int i = 0; i < size; i++) {
+            array[i] = rand.nextInt(10000); // Random numbers between 0 and 9999 
+        }
+        return array;
+    }
+
+    // Bubble Sort Algorithm 
+    public static void bubbleSort(int[] array) {
+        int n = array.length;
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
                 if (array[j] > array[j + 1]) {
                     int temp = array[j];
                     array[j] = array[j + 1];
@@ -13,17 +70,14 @@ class BubbleSort {
                 }
             }
         }
-        return System.currentTimeMillis() - startTime;
     }
-}
 
-class SelectionSort {
-
-    public long sort(int[] array) {
-        long startTime = System.currentTimeMillis();
-        for (int i = 0; i < array.length - 1; i++) {
+    // Selection Sort Algorithm 
+    public static void selectionSort(int[] array) {
+        int n = array.length;
+        for (int i = 0; i < n - 1; i++) {
             int minIndex = i;
-            for (int j = i + 1; j < array.length; j++) {
+            for (int j = i + 1; j < n; j++) {
                 if (array[j] < array[minIndex]) {
                     minIndex = j;
                 }
@@ -32,15 +86,12 @@ class SelectionSort {
             array[minIndex] = array[i];
             array[i] = temp;
         }
-        return System.currentTimeMillis() - startTime;
     }
-}
 
-class InsertionSort {
-
-    public long sort(int[] array) {
-        long startTime = System.currentTimeMillis();
-        for (int i = 1; i < array.length; i++) {
+    // Insertion Sort Algorithm 
+    public static void insertionSort(int[] array) {
+        int n = array.length;
+        for (int i = 1; i < n; i++) {
             int key = array[i];
             int j = i - 1;
             while (j >= 0 && array[j] > key) {
@@ -49,68 +100,51 @@ class InsertionSort {
             }
             array[j + 1] = key;
         }
-        return System.currentTimeMillis() - startTime;
-    }
-}
-
-class MergeSort {
-
-    public long sort(int[] array) {
-        long startTime = System.currentTimeMillis();
-        mergeSort(array, 0, array.length - 1);
-        return System.currentTimeMillis() - startTime;
     }
 
-    private void mergeSort(int[] array, int low, int high) {
-        if (low < high) {
-            int mid = (low + high) / 2;
-            mergeSort(array, low, mid);
-            mergeSort(array, mid + 1, high);
-            merge(array, low, mid, high);
+    // Merge Sort Algorithm 
+    public static void mergeSort(int[] array) {
+        if (array.length < 2) {
+            return;
         }
+        int mid = array.length / 2;
+        int[] left = Arrays.copyOfRange(array, 0, mid);
+        int[] right = Arrays.copyOfRange(array, mid, array.length);
+
+        mergeSort(left);
+        mergeSort(right);
+        merge(array, left, right);
     }
 
-    private void merge(int[] array, int low, int mid, int high) {
-        int[] temp = new int[high - low + 1];
-        int i = low, j = mid + 1, k = 0;
-        while (i <= mid && j <= high) {
-            if (array[i] <= array[j]) {
-                temp[k++] = array[i++];
+    public static void merge(int[] array, int[] left, int[] right) {
+        int i = 0, j = 0, k = 0;
+        while (i < left.length && j < right.length) {
+            if (left[i] <= right[j]) {
+                array[k++] = left[i++];
             } else {
-                temp[k++] = array[j++];
+                array[k++] = right[j++];
             }
         }
-        while (i <= mid) {
-            temp[k++] = array[i++];
+        while (i < left.length) {
+            array[k++] = left[i++];
         }
-        while (j <= high) {
-            temp[k++] = array[j++];
-        }
-        for (i = low; i <= high; i++) {
-            array[i] = temp[i - low];
+        while (j < right.length) {
+            array[k++] = right[j++];
         }
     }
-}
 
-class QuickSort {
-
-    public long sort(int[] array) {
-        long startTime = System.currentTimeMillis();
-        quickSort(array, 0, array.length - 1);
-        return System.currentTimeMillis() - startTime;
-    }
-
-    private void quickSort(int[] array, int low, int high) {
+    // Quick Sort Algorithm 
+    public static void quickSort(int[] array, int low, int high) {
         if (low < high) {
-            int pivotIndex = partition(array, low, high);
-            quickSort(array, low, pivotIndex - 1);
-            quickSort(array, pivotIndex + 1, high);
+            int pi = partition(array, low, high);
+            quickSort(array, low, pi - 1);
+            quickSort(array, pi + 1, high);
         }
     }
 
-    private int partition(int[] array, int low, int high) {
+    public static int partition(int[] array, int low, int high) {
         int pivot = array[high];
-        int i = low - 1;
+        int i = (low - 1);
         for (int j = low; j < high; j++) {
             if (array[j] <= pivot) {
                 i++;
@@ -123,82 +157,5 @@ class QuickSort {
         array[i + 1] = array[high];
         array[high] = temp;
         return i + 1;
-    }
-}
-
-class HeapSort {
-
-    public long sort(int[] array) {
-        long startTime = System.currentTimeMillis();
-        int n = array.length;
-
-        // Build max heap
-        for (int i = n / 2 - 1; i >= 0; i--) {
-            heapify(array, n, i);
-        }
-
-        // Heap sort
-        for (int i = n - 1; i > 0; i--) {
-            int temp = array[0];
-            array[0] = array[i];
-            array[i] = temp;
-
-            heapify(array, i, 0);
-        }
-        return System.currentTimeMillis() - startTime;
-    }
-
-    private void heapify(int[] array, int n, int i) {
-        int largest = i;
-        int left = 2 * i + 1;
-        int right = 2 * i + 2;
-
-        if (left < n && array[left] > array[largest]) {
-            largest = left;
-        }
-
-        if (right < n && array[right] > array[largest]) {
-            largest = right;
-        }
-
-        if (largest != i) {
-            int temp = array[i];
-            array[i] = array[largest];
-            array[largest] = temp;
-
-            heapify(array, n, largest);
-        }
-    }
-}
-
-public class SortingAnalysis {
-
-    public static void main(String[] args) {
-        int[] sizes = {70,9,330,53,22,78,22};
-
-        System.out.println("Array Size\tBubble Sort\tSelection Sort\tInsertion Sort\tMerge Sort\tQuick Sort\tHeap Sort (Time in ms)");
-        for (int size : sizes) {
-            int[] array = new int[size];
-          
-
-            // Create instances of sorting classes
-            BubbleSort bs = new BubbleSort();
-            SelectionSort ss = new SelectionSort();
-            InsertionSort is = new InsertionSort();
-            MergeSort ms = new MergeSort();
-            QuickSort qs = new QuickSort();
-            HeapSort hs = new HeapSort();
-
-            // Sort arrays and measure time
-            long bubbleTime = bs.sort(array.clone());
-            long selectionTime =ss.sort(array.clone());
-            long insertionTime = is.sort(array.clone());
-            long mergeTime = ms.sort(array.clone());
-            long quickTime = qs.sort(array.clone());
-            long heapTime = hs.sort(array.clone());
-
-            // Print results for the current array size
-            System.out.println(size + "\t\t" + bubbleTime + "\t\t" + selectionTime + "\t\t" + insertionTime + "\t\t" + mergeTime + "\t\t" + quickTime + "\t\t" + heapTime);
-        }
     }
 }
